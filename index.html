@@ -1,287 +1,1890 @@
 <!DOCTYPE html>
 <html lang="eu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zer-Nori Ikasten</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --verde: #2e7d32;
-            --rojo: #c62828;
-            --blanco-gris: #eeeeee;
-            --fondo-caja: #ffffff;
-            --texto: #333333;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beta-Urreko · Zer-Nori</title>
+  <style>
+    :root {
+      --bu-green: #15803D;
+      --bu-green-dark: #166534;
+      --bu-green-soft: #ECFDF3;
+      --bu-green-pale: #F0FDF4;
+      --correct: #2E7D32;
+      --error: #C62828;
+      --warning: #E67E22;
+      --info: #1E88E5;
+      --secondary: #6B7280;
+      --ink: #111827;
+      --muted: #4B5563;
+      --line: #D7E5DB;
+      --card: #FFFFFF;
+      --bg: #F5F8F6;
+      --shadow: 0 20px 50px rgba(17, 24, 39, 0.10);
+      --shadow-soft: 0 10px 30px rgba(17, 24, 39, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--blanco-gris);
-            color: var(--texto);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+    * { box-sizing: border-box; }
 
-        #joko-kutxa {
-            background-color: var(--fondo-caja);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 650px;
-            text-align: center;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(21, 128, 61, 0.12), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(30, 136, 229, 0.08), transparent 34rem),
+        var(--bg);
+    }
 
-        .ezkutuan { display: none !important; }
+    button, input { font: inherit; }
 
-        h1 { color: var(--verde); margin-top: 0; }
+    button {
+      border: 0;
+      cursor: pointer;
+    }
 
-        .info-box {
-            text-align: left;
-            background: #f9f9f9;
-            padding: 15px;
-            border-left: 5px solid var(--verde);
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-        }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
 
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-weight: bold;
-            color: var(--verde);
-        }
+    .app {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 34px;
+    }
 
-        .galdera-area {
-            background: #f1f8e9;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
 
-        input[type="text"] {
-            padding: 10px;
-            font-size: 1.2rem;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            width: 140px;
-            text-align: center;
-            outline: none;
-        }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
 
-        input[type="text"]:focus { border-color: var(--verde); }
+    .brand-mark {
+      width: 50px;
+      height: 50px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--bu-green);
+      color: white;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      box-shadow: 0 10px 20px rgba(21, 128, 61, 0.25);
+    }
 
-        button {
-            padding: 12px 30px;
-            font-size: 1rem;
-            background-color: var(--verde);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    .brand-text {
+      font-size: clamp(1.15rem, 2.5vw, 1.55rem);
+      font-weight: 900;
+      color: #1F2937;
+      letter-spacing: -0.03em;
+      white-space: nowrap;
+    }
 
-        button:hover { background-color: #1b5e20; }
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.25s ease-out both; }
 
-        #feedback { font-size: 2.5rem; height: 50px; margin-top: 10px; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-        /* Modalak */
-        .modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+    .panel {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
 
-        .modal-barrua {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-            width: 85%;
-        }
+    .panel-inner { padding: clamp(22px, 4vw, 34px); }
 
-        .gorria { border-top: 10px solid var(--rojo); }
-        .berdea { border-top: 10px solid var(--verde); }
-    </style>
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+      gap: clamp(22px, 4vw, 44px);
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 14px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--bu-green-soft);
+      color: var(--bu-green-dark);
+      border: 1px solid #BBF7D0;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    .title {
+      margin-bottom: 10px;
+      font-size: clamp(2.3rem, 5vw, 4.4rem);
+      line-height: 0.98;
+      letter-spacing: -0.07em;
+      color: var(--bu-green);
+    }
+
+    .menu-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .menu-title-row .title {
+      margin-bottom: 0;
+    }
+
+    .title-help-btn {
+      flex: 0 0 auto;
+      transform: translateY(4px);
+      white-space: nowrap;
+    }
+
+    .subtitle {
+      margin-bottom: 18px;
+      font-size: clamp(1.08rem, 2vw, 1.25rem);
+      line-height: 1.5;
+      color: var(--muted);
+      max-width: 64ch;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .mini-card {
+      min-height: 126px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #F0FDF4, #FFFFFF);
+      border: 1px solid #D8F3E0;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .mini-card:nth-child(2) { background: linear-gradient(135deg, #EFF6FF, #FFFFFF); border-color: #D6E9FF; }
+    .mini-card:nth-child(3) { background: linear-gradient(135deg, #FFF7ED, #FFFFFF); border-color: #FFE3C2; }
+
+    .mini-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 10px;
+      border-radius: 50%;
+      background: white;
+      color: var(--bu-green);
+      box-shadow: 0 4px 12px rgba(17, 24, 39, 0.08);
+      font-weight: 900;
+    }
+
+    .mini-card h3 { margin-bottom: 6px; font-size: 0.98rem; }
+    .mini-card p { margin: 0; color: var(--muted); line-height: 1.45; font-size: 0.92rem; }
+
+    .mode-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .mode-card {
+      width: 100%;
+      text-align: left;
+      padding: 18px;
+      border-radius: 22px;
+      background: white;
+      border: 2px solid #E5E7EB;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .mode-card:hover {
+      transform: translateY(-2px);
+      border-color: #86EFAC;
+      background: #FCFFFD;
+      box-shadow: 0 16px 34px rgba(21, 128, 61, 0.12);
+    }
+
+    .mode-card:focus-visible,
+    .primary-btn:focus-visible,
+    .secondary-btn:focus-visible,
+    .ghost-btn:focus-visible,
+    .answer-input:focus-visible {
+      outline: 4px solid rgba(21, 128, 61, 0.24);
+      outline-offset: 3px;
+    }
+
+    .mode-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+
+    .mode-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.22rem;
+      font-weight: 950;
+      color: var(--ink);
+    }
+
+    .mode-pill {
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--bu-green-soft);
+      color: var(--bu-green-dark);
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .mode-card p { margin: 0; line-height: 1.45; color: var(--muted); }
+
+    .example-card {
+      background: white;
+      border: 1px solid #D7E5DB;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .example-card h2 {
+      color: var(--bu-green);
+      margin-bottom: 14px;
+      font-size: 1.35rem;
+    }
+
+    .rule-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--bu-green-pale);
+      border: 1px solid #BBF7D0;
+      color: #14532D;
+      line-height: 1.45;
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 8px;
+      padding-left: 0;
+      list-style: none;
+      margin: 12px 0 0;
+    }
+
+    .rule-list li {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      line-height: 1.4;
+    }
+
+    .game-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .game-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      padding: 20px clamp(18px, 4vw, 30px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.86);
+    }
+
+    .game-title-wrap h1 {
+      margin: 0;
+      color: var(--bu-green);
+      font-size: clamp(1.35rem, 3vw, 2rem);
+      letter-spacing: -0.04em;
+    }
+
+    .game-title-wrap p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      color: #1F2937;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .progress-wrap {
+      padding: 0 clamp(18px, 4vw, 30px) 18px;
+      background: white;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 12px 0 8px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .progress-track {
+      height: 12px;
+      background: #E5E7EB;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--bu-green), #22C55E);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .game-main { padding: clamp(22px, 4vw, 38px); }
+
+    .question-box {
+      margin-bottom: 22px;
+      padding: clamp(20px, 4vw, 30px);
+      border-radius: 24px;
+      background: linear-gradient(135deg, #F7FFF9, #FFFFFF);
+      border: 1px solid #D8F3E0;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .question {
+      margin: 0;
+      font-size: clamp(1.45rem, 3.4vw, 2.25rem);
+      line-height: 1.25;
+      letter-spacing: -0.04em;
+      font-weight: 900;
+    }
+
+    .blank {
+      color: var(--bu-green);
+      white-space: nowrap;
+    }
+
+    .answer-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 320px) auto;
+      justify-content: center;
+      gap: 12px;
+      margin: 18px auto 0;
+      max-width: 620px;
+    }
+
+    .answer-input {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 16px;
+      border: 2px solid #CBD5E1;
+      background: white;
+      color: var(--ink);
+      font-size: 1.12rem;
+      font-weight: 800;
+      text-align: center;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .answer-input:focus { border-color: var(--bu-green); box-shadow: 0 0 0 4px rgba(21,128,61,0.12); }
+
+    .primary-btn, .secondary-btn, .ghost-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 16px;
+      padding: 14px 18px;
+      min-height: 50px;
+      font-weight: 900;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--bu-green), #16A34A);
+      color: white;
+      box-shadow: 0 12px 22px rgba(21, 128, 61, 0.22);
+    }
+
+    .primary-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 16px 28px rgba(21, 128, 61, 0.28); }
+
+    .secondary-btn {
+      background: white;
+      color: var(--bu-green-dark);
+      border: 1px solid #BDEACB;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .secondary-btn:hover:not(:disabled) { background: #F0FDF4; transform: translateY(-1px); }
+
+    .ghost-btn {
+      background: #F9FAFB;
+      color: #374151;
+      border: 1px solid #E5E7EB;
+    }
+
+    .danger-btn {
+      background: linear-gradient(135deg, var(--error), #B91C1C);
+      color: white;
+      box-shadow: 0 12px 22px rgba(198, 40, 40, 0.2);
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.45;
+    }
+
+    .feedback {
+      min-height: 58px;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 900;
+    }
+
+    .feedback.empty {
+      background: #F9FAFB;
+      color: var(--muted);
+      border-color: #E5E7EB;
+      font-weight: 700;
+    }
+
+    .feedback.ok {
+      background: #ECFDF3;
+      color: #166534;
+      border-color: #BBF7D0;
+    }
+
+    .feedback.warn {
+      background: #FFF7ED;
+      color: #9A3412;
+      border-color: #FED7AA;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(17, 24, 39, 0.62);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-card {
+      width: min(560px, 100%);
+      background: white;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.24);
+      overflow: hidden;
+      animation: pop 0.18s ease-out both;
+    }
+
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-top { height: 10px; background: var(--bu-green); }
+    .modal-top.error { background: var(--error); }
+
+    .modal-body { padding: 28px; text-align: center; }
+    .modal-body h2 { font-size: 2rem; margin-bottom: 8px; letter-spacing: -0.04em; }
+    .modal-body p { color: var(--muted); line-height: 1.5; }
+
+    .answer-reveal {
+      margin: 18px 0;
+      padding: 15px;
+      border-radius: 18px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #7F1D1D;
+      font-weight: 800;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .result-tile {
+      padding: 16px;
+      border-radius: 18px;
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+    }
+
+    .result-tile strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 1.45rem;
+      color: var(--bu-green);
+    }
+
+    .confetti {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 60;
+    }
+
+    .confetti span {
+      position: absolute;
+      top: -16px;
+      width: 10px;
+      height: 16px;
+      border-radius: 3px;
+      animation: fall 1.8s ease-in forwards;
+      opacity: 0.9;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(calc(100vh + 40px)) rotate(520deg); opacity: 1; }
+    }
+
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      .intro-grid { grid-template-columns: 1fr; }
+      .game-header { grid-template-columns: 1fr; }
+      .stats { justify-content: flex-start; }
+      .answer-row { grid-template-columns: 1fr; }
+      .modal-actions { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      .app { width: min(100% - 20px, 1180px); padding-top: 14px; }
+      .topbar { align-items: flex-start; }
+      .brand-mark { width: 44px; height: 44px; font-size: 1.15rem; }
+      .brand-text { font-size: 1.16rem; }
+      .panel-inner, .game-main { padding: 18px; }
+      .mode-card { padding: 15px; }
+      .question { font-size: 1.35rem; }
+      .stat { width: 100%; justify-content: center; }
+      .menu-title-row { gap: 10px; }
+      .title-help-btn { transform: none; }
+    }
+  </style>
 </head>
 <body>
+  <main class="app">
+    <header class="topbar" aria-label="Beta-Urreko goiburua">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">BU</div>
+        <div class="brand-text">Beta-Urreko</div>
+      </div>
+    </header>
 
-<div id="joko-kutxa">
-    
-    <!-- 1. HASIERA PANTILA -->
-    <div id="pantaila-hasiera">
-        <h1>ZER-NORI Jokoa</h1>
-        <div class="info-box">
-            <strong>Nola jokatu:</strong>
-            <p>Osatu esaldiak Zer-Nori aditzekin (zait, zaigu, zaizkie...).</p>
-            <ul>
-                <li><strong>Singularra (Giltza):</strong> zait, zaizu, zaio, zaigu, zaizue, zaie.</li>
-                <li><strong>Plurala (Giltzak):</strong> zaizkit, zaizkizu, zaizkio, zaizkigu, zaizkizue, zaizkie.</li>
+    <section id="menuScreen" class="screen active">
+      <div class="panel">
+        <div class="panel-inner hero">
+          <div>
+            <p class="eyebrow">Euskera · Zer-Nori</p>
+            <div class="menu-title-row">
+              <h1 class="title">Zer-Nori aditzak</h1>
+              <button class="secondary-btn title-help-btn" type="button" id="helpBtn">? Nola jokatu</button>
+            </div>
+            <p class="subtitle">
+              Aukeratu jolas modua eta osatu esaldi bakoitzeko hutsunea. Helburua: 50 erantzun zuzen jarraian lortzea.
+            </p>
+
+            <div class="intro-grid" aria-label="Jokoaren azalpen laburra">
+              <article class="mini-card">
+                <span class="mini-icon">1</span>
+                <h3>Zer begiratu?</h3>
+                <p>Zer gertatu den eta nori gertatu zaion identifikatu.</p>
+              </article>
+              <article class="mini-card">
+                <span class="mini-icon">2</span>
+                <h3>Singularra edo plurala?</h3>
+                <p>Gauza bat bada forma bat; gauza bat baino gehiago badira, beste forma bat.</p>
+              </article>
+              <article class="mini-card">
+                <span class="mini-icon">3</span>
+                <h3>Kontuz denborarekin</h3>
+                <p>Orainaldia eta lehenaldia ez dira berdin idazten.</p>
+              </article>
+            </div>
+
+            <div class="rule-box">
+              <strong>Nola jokatu:</strong> idatzi aditz laguntzailea hutsunean eta sakatu <strong>Enter</strong> edo <strong>Egiaztatu</strong>. Akats bat eginez gero, erantzun zuzena ikusiko duzu eta saiakera berriro hasiko da.
+            </div>
+          </div>
+
+          <aside class="example-card" aria-label="Jolas moduak">
+            <h2>Jolas modua aukeratu</h2>
+            <div class="mode-grid">
+              <button class="mode-card" type="button" data-mode="orainaldia">
+                <div class="mode-head">
+                  <span class="mode-title">☀️ Orainaldia</span>
+                  <span class="mode-pill">100 esaldi</span>
+                </div>
+                <p><strong>Adibidea:</strong> Niri kartera erori <strong>zait</strong>.</p>
+              </button>
+
+              <button class="mode-card" type="button" data-mode="lehenaldia">
+                <div class="mode-head">
+                  <span class="mode-title">🕰️ Lehenaldia</span>
+                  <span class="mode-pill">100 esaldi</span>
+                </div>
+                <p><strong>Adibidea:</strong> Niri atzo kartera erori <strong>zitzaidan</strong>.</p>
+              </button>
+
+              <button class="mode-card" type="button" data-mode="nahastua">
+                <div class="mode-head">
+                  <span class="mode-title">🔀 Nahastuta</span>
+                  <span class="mode-pill">200 esaldi</span>
+                </div>
+                <p>Orainaldia eta lehenaldia nahastuta. Esaldiko denbora-markei erreparatu.</p>
+              </button>
+            </div>
+
+            <ul class="rule-list">
+              <li><strong>Orainaldia:</strong> zait, zaizu, zaio, zaigu, zaizue, zaie...</li>
+              <li><strong>Lehenaldia:</strong> zitzaidan, zitzaizun, zitzaion, zitzaigun, zitzaizuen, zitzaien...</li>
+              <li><strong>Plurala:</strong> zaizkit / zitzaizkidan bezalako formak ager daitezke.</li>
             </ul>
-            <p>50 puntu lortu behar dituzu. Huts egitekotan, 0tik hasiko zara!</p>
+          </aside>
         </div>
-        <button onclick="hasiJokoa()">HASI</button>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen" aria-live="polite">
+      <div class="game-card">
+        <div class="game-header">
+          <div class="game-title-wrap">
+            <h1 id="gameTitle">Zer-Nori</h1>
+            <p id="gameSubtitle">Osatu hutsunea forma egokiarekin.</p>
+          </div>
+          <div class="stats" aria-label="Jokoaren egoera">
+            <span class="stat">🏆 Puntuak: <span id="scoreText">0</span> / 50</span>
+            <span class="stat">⏱️ Denbora: <span id="timerText">00:00</span></span>
+            <button class="secondary-btn" type="button" id="backToMenuBtn">⌂ Menura</button>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span id="progressLabel">Aurrerapena</span>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+        <div class="game-main">
+          <div class="toolbar">
+            <p class="hint" id="modeHint">Idatzi falta den aditz laguntzailea.</p>
+            <button class="ghost-btn" type="button" id="changeQuestionBtn">Beste esaldi bat</button>
+          </div>
+          <div class="question-box">
+            <p class="question" id="questionText">...</p>
+            <div class="answer-row">
+              <input id="answerInput" class="answer-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Idatzi erantzuna" />
+              <button id="checkBtn" class="primary-btn" type="button">Egiaztatu</button>
+            </div>
+          </div>
+          <div id="feedback" class="feedback empty">Prest zaudenean, idatzi erantzuna.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="helpModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal-card">
+      <div class="modal-top"></div>
+      <div class="modal-body">
+        <h2 id="helpTitle">Nola jokatu?</h2>
+        <p>Joko honetan Zer-Nori aditz laguntzailea idatzi behar da. Begiratu nori gertatzen zaion eta objektua singularra edo plurala den.</p>
+        <div class="rule-box" style="text-align:left;">
+          <p><strong>Orainaldia:</strong> Niri kartera erori <strong>zait</strong>.</p>
+          <p><strong>Lehenaldia:</strong> Niri atzo kartera erori <strong>zitzaidan</strong>.</p>
+          <p><strong>Plurala:</strong> Niri giltzak galdu <strong>zaizkit</strong>.</p>
+        </div>
+        <button class="primary-btn" type="button" id="closeHelpBtn">Ulertu dut</button>
+      </div>
     </div>
+  </div>
 
-    <!-- 2. JOKOAREN AREA -->
-    <div id="pantaila-jokoa" class="ezkutuan">
-        <div class="stats">
-            <span>Puntuak: <span id="puntuak">0</span> / 50</span>
-            <span>Denbora: <span id="krono">00:00</span></span>
+  <div id="wrongModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="wrongTitle">
+    <div class="modal-card">
+      <div class="modal-top error"></div>
+      <div class="modal-body">
+        <h2 id="wrongTitle" style="color: var(--error);">Ez da zuzena</h2>
+        <p>Akats bat egin duzu. Saiakera berriro hasiko da, baina hemen duzu zuzenketa.</p>
+        <div id="answerReveal" class="answer-reveal"></div>
+        <p id="wrongTip">Begiratu ondo nori gertatzen zaion eta esaldia orainean edo iraganean dagoen.</p>
+        <div class="modal-actions">
+          <button class="danger-btn primary-btn" type="button" id="restartBtn">Berriro saiatu</button>
+          <button class="secondary-btn" type="button" id="wrongMenuBtn">Modua aldatu</button>
         </div>
-        <div class="galdera-area">
-            <h2 id="esaldia">...</h2>
-            <input type="text" id="erantzun-input" placeholder="..." autocomplete="off">
-        </div>
-        <button onclick="egiaztatu()">Aurrera</button>
-        <div id="feedback"></div>
+      </div>
     </div>
+  </div>
 
-    <!-- 3. HUTS EGINDAKO MODALA -->
-    <div id="modal-huts" class="modal ezkutuan">
-        <div class="modal-barrua gorria">
-            <h2 style="color: var(--rojo)">Huts egin duzu!</h2>
-            <p id="esaldi-zuzena" style="font-weight: bold; margin: 20px 0;"></p>
-            <p>Puntuazioa galdu duzu. Saiatu berriro!</p>
-            <button onclick="berrekin()" style="background-color: var(--rojo)">BERRIRO HASI</button>
+  <div id="winModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="modal-card">
+      <div class="modal-top"></div>
+      <div class="modal-body">
+        <h2 id="winTitle" style="color: var(--bu-green);">Zorionak!</h2>
+        <p id="winMessage">50 erantzun zuzen jarraian lortu dituzu.</p>
+        <div class="result-grid">
+          <div class="result-tile">Puntuak<strong>50</strong></div>
+          <div class="result-tile">Denbora<strong id="finalTime">00:00</strong></div>
+          <div class="result-tile">Modua<strong id="finalMode">—</strong></div>
         </div>
-    </div>
-
-    <!-- 4. IRABAZI MODALA -->
-    <div id="modal-irabazi" class="modal ezkutuan">
-        <div class="modal-barrua berdea">
-            <h1>ZORIONAK! 🥳</h1>
-            <p>50 puntu lortu dituzu!</p>
-            <h2 id="denbora-emaitza" style="color: var(--verde)"></h2>
-            <button onclick="location.reload()">HASIERARA</button>
+        <div class="modal-actions">
+          <button class="primary-btn" type="button" id="playAgainBtn">Berriro jokatu</button>
+          <button class="secondary-btn" type="button" id="winMenuBtn">Modua aldatu</button>
         </div>
+      </div>
     </div>
+  </div>
 
-</div>
+  <div id="confettiLayer" class="confetti" aria-hidden="true"></div>
 
-<script>
-    // 100 ESALDIAK
-    const esaldiak = [
-        {q: "Niri kartera erori ", a: "zait"}, {q: "Aneri giltzak galdu ", a: "zaizkio"}, {q: "Hari mugikorra apurtu ", a: "zaio"}, {q: "Guri autobusa galdu ", a: "zaigu"}, {q: "Zuei kamisetak apurtu ", a: "zaizkizue"},
-        {q: "Haiei kotxea hondatu ", a: "zaie"}, {q: "Mireni liburua busti ", a: "zaio"}, {q: "Zuri kafeak hoztu ", a: "zaizkizu"}, {q: "Juleni lorea zimeldu ", a: "zaio"}, {q: "Guri argiak itzali ", a: "zaizkigu"},
-        {q: "Zuei ordenagailuak blokeatu ", a: "zaizkizue"}, {q: "6.A-ko ikasleei ateak itxi ", a: "zaizkie"}, {q: "Ikerri poltsa hautsi ", a: "zaio"}, {q: "Zuri kamisetak zikindu ", a: "zaizkizu"}, {q: "Mikeli ogiak erre ", a: "zaizkio"},
-        {q: "Guri irratiak apurtu ", a: "zaizkigu"}, {q: "Leireri planak aldatu ", a: "zaizkio"}, {q: "Paco eta Feliperi kafeak hoztu ", a: "zaizkie"}, {q: "Niri telefonoa erori ", a: "zait"}, {q: "Zuri dirua amaitu ", a: "zaizu"},
-        {q: "Maddiri betaurrekoak galdu ", a: "zaizkio"}, {q: "Guri ur botilak bukatu ", a: "zaizkigu"}, {q: "Zuei boligrafo berdeak galdu ", a: "zaizkizue"}, {q: "Haiei arrainak gaixotu ", a: "zaizkie"}, {q: "Peru-ri ariketa ahaztu ", a: "zaio"},
-        {q: "Zuri ideia ikaragarriak bururatu ", a: "zaizkizu"}, {q: "Gure lagunari katuak ezkutatu ", a: "zaizkio"}, {q: "Guri kafe makina guztiak hondatu ", a: "zaizkigu"}, {q: "Juneri mugikorra itzali ", a: "zaio"}, {q: "Haiei telebistak apurtu ", a: "zaizkie"},
-        {q: "Niri txapela galdu ", a: "zait"}, {q: "Zuri etxeko leihoak ireki ", a: "zaizkizu"}, {q: "Joni atea trabatu ", a: "zaio"}, {q: "Guri autoak gelditu ", a: "zaizkigu"}, {q: "Zuei arropak busti ", a: "zaizkizue"},
-        {q: "Haiei landareak hil ", a: "zaizkie"}, {q: "Aneri prakak hautsi ", a: "zaizkio"}, {q: "Zuri ur botila erori ", a: "zaizu"}, {q: "Irakasleari ordenagailua moteldu ", a: "zaio"}, {q: "Guri argazkiak ezabatu ", a: "zaizkigu"},
-        {q: "Zuei oporrak amaitu ", a: "zaizkizue"}, {q: "Beste taldeari planak zapuztu ", a: "zaizkio"}, {q: "Niri txakurra lo geratu ", a: "zait"}, {q: "Mireni pastel zatiak erori ", a: "zaizkio"}, {q: "Hari autoaren giltzak galdu ", a: "zaizkio"},
-        {q: "Guri bideak nahastu ", a: "zaizkigu"}, {q: "Zuei bateriak bukatu ", a: "zaizkizue"}, {q: "Haiei aurpegiak gorritu ", a: "zaizkie"}, {q: "Iratiri sudurra apurtu ", a: "zaio"}, {q: "Zuri alkandorak zimurtu ", a: "zaizkizu"},
-        {q: "Hari zapatilak hautsi ", a: "zaizkio"}, {q: "Guri telefonoak deskargatu ", a: "zaizkigu"}, {q: "Zuei paperak apurtu ", a: "zaizkizue"}, {q: "Dendako langileei txoriak eskapatu ", a: "zaizkie"}, {q: "Beñati proiektua egitea ahaztu ", a: "zaio"},
-        {q: "Zuri lagunak agertu ", a: "zaizkizu"}, {q: "Hari gosariak hoztu ", a: "zaizkio"}, {q: "Guri ateko giltzak trabatu ", a: "zaizkigu"}, {q: "Zuei balioak galdu ", a: "zaizkizue"}, {q: "Niri mandarinak gustatzen ", a: "zaizkit"},
-        {q: "Niri musika gustatzen ", a: "zait"}, {q: "Zuri pelikulak amaitu ", a: "zaizkizu"}, {q: "Oihaneri kafea erori ", a: "zaio"}, {q: "Guri telebistak piztu ", a: "zaizkigu"}, {q: "Zuei lagunak bizitan etorri ", a: "zaizkizue"},
-        {q: "Nire gurasoei oparia gustatu ", a: "zaie"}, {q: "Niri etxerako lanak ahaztu ", a: "zaizkit"}, {q: "Zuri prakak busti ", a: "zaizkizu"}, {q: "Berari autobusa berandu iritsi ", a: "zaio"}, {q: "Guri lepoak luzatu ", a: "zaizkigu"},
-        {q: "Zuei leihoak apurtu ", a: "zaizkizue"}, {q: "Maite eta Jaimeri pilotak galdu ", a: "zaizkie"}, {q: "Aneri argia joan ", a: "zaio"}, {q: "Zuri bonbilak piztu ", a: "zaizkizu"}, {q: "Hari bazkariak erre ", a: "zaizkio"},
-        {q: "Guri txartelak galdu ", a: "zaizkigu"}, {q: "Zuei oinetakoak askatu ", a: "zaizkizue"}, {q: "Haiei umeak lokartu ", a: "zaizkie"}, {q: "Niri kotxea zikindu ", a: "zait"}, {q: "Zuri lanak pilatu ", a: "zaizkizu"},
-        {q: "Juleni ur botilak erori ", a: "zaizkio"}, {q: "Guri gure telefono zenbakiak ahaztu ", a: "zaizkigu"}, {q: "Zuei telebista hondatu ", a: "zaizue"}, {q: "Haiei lagunak urrundu ", a: "zaizkie"}, {q: "Ikerri azterketak txarto atera ", a: "zaizkio"},
-        {q: "Zuri mugikorra desagertu ", a: "zaizu"}, {q: "Hari autoak matxuratu ", a: "zaizkio"}, {q: "Guri irakasleak etorri ", a: "zaizkigu"}, {q: "Irakasleari ikasle guztiak lokartuta geratu ", a: "zaizkio"}, {q: "Haiei oporrak hasi ", a: "zaizkie"},
-        {q: "Niri jaka busti ", a: "zait"}, {q: "Zuri motxila ireki ", a: "zaizu"}, {q: "Borjari argazkiak hondatu ", a: "zaizkio"}, {q: "Guri etxerako lanak amaitu ", a: "zaizkigu"}, {q: "Zuei liburua galdu ", a: "zaizue"},
-        {q: "Haiei ateak ireki ", a: "zaizkie"}, {q: "Niri kafeak gustatzen ", a: "zaizkit"}, {q: "Zuri Aneren liburua galdu ", a: "zaizu"}, {q: "Pakori erlojua gelditu ", a: "zaio"}, {q: "Niri pazientzia agortu ", a: "zait"}
-    ];
+  <script>
+    const ORAINALDIA = [
+      {
+            "q": "Niri kartera erori ",
+            "a": "zait"
+      },
+      {
+            "q": "Aneri giltzak galdu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Hari mugikorra apurtu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Guri autobusa galdu ",
+            "a": "zaigu"
+      },
+      {
+            "q": "Zuei kamisetak apurtu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Haiei kotxea hondatu ",
+            "a": "zaie"
+      },
+      {
+            "q": "Mireni liburua busti ",
+            "a": "zaio"
+      },
+      {
+            "q": "Zuri kafeak hoztu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Juleni lorea zimeldu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Guri argiak itzali ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei ordenagailuak blokeatu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Ikasle taldeari ateak itxi ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Ikerri poltsa hautsi ",
+            "a": "zaio"
+      },
+      {
+            "q": "Zuri kamisetak zikindu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Mikeli ogiak erre ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri irratiak apurtu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Leireri planak aldatu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Paco eta Feliperi kafeak hoztu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Niri telefonoa erori ",
+            "a": "zait"
+      },
+      {
+            "q": "Zuri dirua amaitu ",
+            "a": "zaizu"
+      },
+      {
+            "q": "Maddiri betaurrekoak galdu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri ur botilak bukatu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei boligrafo berdeak galdu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Haiei arrainak gaixotu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Peru-ri ariketa ahaztu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Zuri ideia ikaragarriak bururatu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Gure lagunari katuak ezkutatu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri kafe makina guztiak hondatu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Juneri mugikorra itzali ",
+            "a": "zaio"
+      },
+      {
+            "q": "Haiei telebistak apurtu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Niri txapela galdu ",
+            "a": "zait"
+      },
+      {
+            "q": "Zuri etxeko leihoak ireki ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Joni atea trabatu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Guri autoak gelditu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei arropak busti ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Haiei landareak hil ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Aneri prakak hautsi ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Zuri ur botila erori ",
+            "a": "zaizu"
+      },
+      {
+            "q": "Irakasleari ordenagailua moteldu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Guri argazkiak ezabatu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei oporrak amaitu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Beste taldeari planak zapuztu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Niri txakurra lo geratu ",
+            "a": "zait"
+      },
+      {
+            "q": "Mireni pastel zatiak erori ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Hari autoaren giltzak galdu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri bideak nahastu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei bateriak bukatu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Haiei aurpegiak gorritu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Iratiri sudurra apurtu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Zuri alkandorak zimurtu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Hari zapatilak hautsi ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri telefonoak deskargatu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei paperak apurtu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Dendako langileei txoriak eskapatu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Beñati proiektua egitea ahaztu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Zuri lagunak agertu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Hari gosariak hoztu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri ateko giltzak trabatu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei balioak galdu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Niri mandarinak gustatzen ",
+            "a": "zaizkit"
+      },
+      {
+            "q": "Niri musika gustatzen ",
+            "a": "zait"
+      },
+      {
+            "q": "Zuri pelikulak amaitu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Oihaneri kafea erori ",
+            "a": "zaio"
+      },
+      {
+            "q": "Guri telebistak piztu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei lagunak bizitan etorri ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Nire gurasoei oparia gustatu ",
+            "a": "zaie"
+      },
+      {
+            "q": "Niri etxerako lanak ahaztu ",
+            "a": "zaizkit"
+      },
+      {
+            "q": "Zuri prakak busti ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Berari autobusa berandu iritsi ",
+            "a": "zaio"
+      },
+      {
+            "q": "Guri lepoak luzatu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei leihoak apurtu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Maite eta Jaimeri pilotak galdu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Aneri argia joan ",
+            "a": "zaio"
+      },
+      {
+            "q": "Zuri bonbilak piztu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Hari bazkariak erre ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri txartelak galdu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei oinetakoak askatu ",
+            "a": "zaizkizue"
+      },
+      {
+            "q": "Haiei umeak lokartu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Niri kotxea zikindu ",
+            "a": "zait"
+      },
+      {
+            "q": "Zuri lanak pilatu ",
+            "a": "zaizkizu"
+      },
+      {
+            "q": "Juleni ur botilak erori ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri gure telefono zenbakiak ahaztu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei telebista hondatu ",
+            "a": "zaizue"
+      },
+      {
+            "q": "Haiei lagunak urrundu ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Ikerri azterketak txarto atera ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Zuri mugikorra desagertu ",
+            "a": "zaizu"
+      },
+      {
+            "q": "Hari autoak matxuratu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri irakasleak etorri ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Irakasleari ikasle guztiak lokartuta geratu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Haiei oporrak hasi ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Niri jaka busti ",
+            "a": "zait"
+      },
+      {
+            "q": "Zuri motxila ireki ",
+            "a": "zaizu"
+      },
+      {
+            "q": "Borjari argazkiak hondatu ",
+            "a": "zaizkio"
+      },
+      {
+            "q": "Guri etxerako lanak amaitu ",
+            "a": "zaizkigu"
+      },
+      {
+            "q": "Zuei liburua galdu ",
+            "a": "zaizue"
+      },
+      {
+            "q": "Haiei ateak ireki ",
+            "a": "zaizkie"
+      },
+      {
+            "q": "Niri kafeak gustatzen ",
+            "a": "zaizkit"
+      },
+      {
+            "q": "Zuri Aneren liburua galdu ",
+            "a": "zaizu"
+      },
+      {
+            "q": "Pakori erlojua gelditu ",
+            "a": "zaio"
+      },
+      {
+            "q": "Niri pazientzia agortu ",
+            "a": "zait"
+      }
+];
 
-    let puntuazioa = 0;
-    let galderaGaurkoa = null;
-    let hasieraDenbora = null;
-    let kronoInterval = null;
+    const LEHENALDIA = [
+      {
+            "q": "Niri atzo kartera erori ",
+            "a": "zitzaidan"
+      },
+      {
+            "q": "Aneri joan den astean giltzak galdu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Hari herenegun mugikorra apurtu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Guri aurreko astean autobusa galdu ",
+            "a": "zitzaigun"
+      },
+      {
+            "q": "Zuei atzo kamisetak apurtu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Haiei joan den hilean kotxea hondatu ",
+            "a": "zitzaien"
+      },
+      {
+            "q": "Mireni atzo liburua busti ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Zuri goizean kafeak hoztu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Juleni joan den astean lorea zimeldu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Guri bart argiak itzali ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei atzo ordenagailuak blokeatu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Ikasle taldeari herenegun ateak itxi ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Ikerri atzo poltsa hautsi ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Zuri joan den ostiralean kamisetak zikindu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Mikeli bart ogiak erre ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri joan den astean irratiak apurtu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Leireri atzo planak aldatu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Paco eta Feliperi goizean kafeak hoztu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Niri herenegun telefonoa erori ",
+            "a": "zitzaidan"
+      },
+      {
+            "q": "Zuri joan den astean dirua amaitu ",
+            "a": "zitzaizun"
+      },
+      {
+            "q": "Maddiri atzo betaurrekoak galdu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri bart ur botilak bukatu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei joan den astelehenean boligrafo berdeak galdu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Haiei atzo arrainak gaixotu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Peruri herenegun ariketa ahaztu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Zuri joan den gauean ideia ikaragarriak bururatu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Gure lagunari atzo katuak ezkutatu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri joan den hilean kafe makina guztiak hondatu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Juneri bart mugikorra itzali ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Haiei aurreko astean telebistak apurtu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Niri atzo txapela galdu ",
+            "a": "zitzaidan"
+      },
+      {
+            "q": "Zuri goizean etxeko leihoak ireki ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Joni herenegun atea trabatu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Guri joan den astean autoak gelditu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei atzo arropak busti ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Haiei joan den neguan landareak hil ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Aneri bart prakak hautsi ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Zuri atzo ur botila erori ",
+            "a": "zitzaizun"
+      },
+      {
+            "q": "Irakasleari goizean ordenagailua moteldu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Guri joan den astean argazkiak ezabatu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei atzo oporrak amaitu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Beste taldeari herenegun planak zapuztu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Niri bart txakurra lo geratu ",
+            "a": "zitzaidan"
+      },
+      {
+            "q": "Mireni atzo pastel zatiak erori ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Hari joan den astean autoaren giltzak galdu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri atzo bideak nahastu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei bart bateriak bukatu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Haiei goizean aurpegiak gorritu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Iratiri herenegun sudurra apurtu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Zuri joan den astean alkandorak zimurtu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Hari atzo zapatilak hautsi ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri bart telefonoak deskargatu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei atzo paperak apurtu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Dendako langileei herenegun txoriak eskapatu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Beñati joan den astean proiektua egitea ahaztu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Zuri bart lagunak agertu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Hari goizean gosariak hoztu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri atzo ateko giltzak trabatu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei joan den astean balioak galdu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Niri txikitan mandarinak gustatzen ",
+            "a": "zitzaizkidan"
+      },
+      {
+            "q": "Niri gaztetan musika gustatzen ",
+            "a": "zitzaidan"
+      },
+      {
+            "q": "Zuri bart pelikulak amaitu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Oihaneri atzo kafea erori ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Guri goizean telebistak piztu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei joan den igandean lagunak bizitan etorri ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Nire gurasoei atzo oparia gustatu ",
+            "a": "zitzaien"
+      },
+      {
+            "q": "Niri herenegun etxerako lanak ahaztu ",
+            "a": "zitzaizkidan"
+      },
+      {
+            "q": "Zuri atzo prakak busti ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Berari goizean autobusa berandu iritsi ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Guri txikitan lepoak luzatu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei bart leihoak apurtu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Maite eta Jaimeri joan den astean pilotak galdu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Aneri atzo argia joan ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Zuri bart bonbilak piztu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Hari goizean bazkariak erre ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri atzo txartelak galdu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei joan den ostegunean oinetakoak askatu ",
+            "a": "zitzaizkizuen"
+      },
+      {
+            "q": "Haiei bart umeak lokartu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Niri atzo kotxea zikindu ",
+            "a": "zitzaidan"
+      },
+      {
+            "q": "Zuri joan den astean lanak pilatu ",
+            "a": "zitzaizkizun"
+      },
+      {
+            "q": "Juleni herenegun ur botilak erori ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri atzo gure telefono zenbakiak ahaztu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei bart telebista hondatu ",
+            "a": "zitzaizuen"
+      },
+      {
+            "q": "Haiei joan den urtean lagunak urrundu ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Ikerri atzo azterketak txarto atera ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Zuri herenegun mugikorra desagertu ",
+            "a": "zitzaizun"
+      },
+      {
+            "q": "Hari joan den astean autoak matxuratu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri gaur goizean irakasleak etorri ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Irakasleari atzo ikasle guztiak lokartuta geratu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Haiei joan den uztailean oporrak hasi ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Niri bart jaka busti ",
+            "a": "zitzaidan"
+      },
+      {
+            "q": "Zuri atzo motxila ireki ",
+            "a": "zitzaizun"
+      },
+      {
+            "q": "Borjari herenegun argazkiak hondatu ",
+            "a": "zitzaizkion"
+      },
+      {
+            "q": "Guri joan den astean etxerako lanak amaitu ",
+            "a": "zitzaizkigun"
+      },
+      {
+            "q": "Zuei atzo liburua galdu ",
+            "a": "zitzaizuen"
+      },
+      {
+            "q": "Haiei bart ateak ireki ",
+            "a": "zitzaizkien"
+      },
+      {
+            "q": "Niri gaztetan kafeak gustatzen ",
+            "a": "zitzaizkidan"
+      },
+      {
+            "q": "Zuri joan den astean Aneren liburua galdu ",
+            "a": "zitzaizun"
+      },
+      {
+            "q": "Pakori atzo erlojua gelditu ",
+            "a": "zitzaion"
+      },
+      {
+            "q": "Niri azkenaldian pazientzia agortu ",
+            "a": "zitzaidan"
+      }
+];
 
-    // Funtzio laguntzaileak
-    const lortuId = (id) => document.getElementById(id);
+    const TARGET_SCORE = 50;
 
-    function hasiJokoa() {
-        puntuazioa = 0;
-        lortuId('puntuak').innerText = "0";
-        lortuId('pantaila-hasiera').classList.add('ezkutuan');
-        lortuId('modal-huts').classList.add('ezkutuan');
-        lortuId('pantaila-jokoa').classList.remove('ezkutuan');
-        
-        hasieraDenbora = Date.now();
-        kronoHasi();
-        hurrengoGaldera();
+    const MODES = {
+      orainaldia: {
+        title: "Zer-Nori · Orainaldia",
+        label: "Orainaldia",
+        subtitle: "Osatu hutsunea orainaldiko Zer-Nori formarekin.",
+        hint: "Pista: gaur edo orain gertatzen den bezala pentsatu.",
+        win: "Orainaldiko 50 esaldi zuzen jarraian lortu dituzu.",
+        questions: ORAINALDIA,
+        wrongTip: "Gogoratu: orainaldian formak zait, zaizu, zaio, zaigu, zaizue, zaie... izan daitezke. Pluralean zaizkit, zaizkizu, zaizkio... bezalakoak agertzen dira."
+      },
+      lehenaldia: {
+        title: "Zer-Nori · Lehenaldia",
+        label: "Lehenaldia",
+        subtitle: "Osatu hutsunea lehenaldiko Zer-Nori formarekin.",
+        hint: "Pista: atzo, herenegun, bart edo iraganean gertatu dela kontuan hartu.",
+        win: "Lehenaldiko 50 esaldi zuzen jarraian lortu dituzu.",
+        questions: LEHENALDIA,
+        wrongTip: "Gogoratu: lehenaldian formak zitzaidan, zitzaizun, zitzaion, zitzaigun, zitzaizuen, zitzaien... izan daitezke. Pluralean zitzaizkidan, zitzaizkizun, zitzaizkion... bezalakoak agertzen dira."
+      },
+      nahastua: {
+        title: "Zer-Nori · Nahastuta",
+        label: "Nahastuta",
+        subtitle: "Orainaldia eta lehenaldia nahastuta. Erreparatu denbora-markei.",
+        hint: "Pista: lehenengo erabaki esaldia orainean ala iraganean dagoen.",
+        win: "Orainaldia eta lehenaldia ondo bereizi dituzu.",
+        questions: [...ORAINALDIA, ...LEHENALDIA],
+        wrongTip: "Modu nahastuan gakoa denbora da: gaur/orain kutsua badu orainaldia; atzo, herenegun, bart edo joan den... agertzen bada, lehenaldia."
+      }
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    let currentModeKey = null;
+    let pool = [];
+    let score = 0;
+    let currentQuestion = null;
+    let startTime = null;
+    let timerId = null;
+    let locked = false;
+
+    function shuffle(items) {
+      const arr = [...items];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
 
-    function kronoHasi() {
-        if(kronoInterval) clearInterval(kronoInterval);
-        kronoInterval = setInterval(() => {
-            let segunduak = Math.floor((Date.now() - hasieraDenbora) / 1000);
-            let m = Math.floor(segunduak / 60).toString().padStart(2, '0');
-            let s = (segunduak % 60).toString().padStart(2, '0');
-            lortuId('krono').innerText = `${m}:${s}`;
-        }, 1000);
+    function normalizeAnswer(value) {
+      return value
+        .trim()
+        .toLowerCase()
+        .replace(/[.!¡¿?]/g, "")
+        .replace(/\s+/g, " ");
     }
 
-    function hurrengoGaldera() {
-        if (puntuazioa === 50) {
-            irabazi();
-            return;
-        }
-        
-        const randomPos = Math.floor(Math.random() * esaldiak.length);
-        galderaGaurkoa = esaldiak[randomPos];
-        
-        lortuId('esaldia').innerText = galderaGaurkoa.q + " ______";
-        lortuId('erantzun-input').value = "";
-        lortuId('feedback').innerText = "";
-        lortuId('erantzun-input').focus();
+    function showScreen(screenId) {
+      document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+      $(screenId).classList.add("active");
     }
 
-    function egiaztatu() {
-        const testua = lortuId('erantzun-input').value.trim().toLowerCase();
-        const zuzena = galderaGaurkoa.a.toLowerCase();
+    function showModal(id) { $(id).classList.add("show"); }
+    function hideModal(id) { $(id).classList.remove("show"); }
 
-        if (testua === zuzena) {
-            puntuazioa++;
-            lortuId('puntuak').innerText = puntuazioa;
-            lortuId('feedback').innerText = "✔️";
-            setTimeout(hurrengoGaldera, 400);
-        } else {
-            hutsEgin();
-        }
+    function setFeedback(type, text) {
+      const feedback = $("feedback");
+      feedback.className = `feedback ${type}`;
+      feedback.textContent = text;
     }
 
-    function hutsEgin() {
-        clearInterval(kronoInterval);
-        lortuId('esaldi-zuzena').innerText = `Erantzun zuzena: "${galderaGaurkoa.q}${galderaGaurkoa.a}"`;
-        lortuId('modal-huts').classList.remove('ezkutuan');
+    function formatTime(ms) {
+      const seconds = Math.max(0, Math.floor(ms / 1000));
+      const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const rest = (seconds % 60).toString().padStart(2, "0");
+      return `${minutes}:${rest}`;
     }
 
-    function berrekin() {
-        lortuId('modal-huts').classList.add('ezkutuan');
-        hasiJokoa();
+    function startTimer() {
+      clearInterval(timerId);
+      startTime = Date.now();
+      $("timerText").textContent = "00:00";
+      timerId = setInterval(() => {
+        $("timerText").textContent = formatTime(Date.now() - startTime);
+      }, 250);
     }
 
-    function irabazi() {
-        clearInterval(kronoInterval);
-        lortuId('denbora-emaitza').innerText = "Denbora: " + lortuId('krono').innerText;
-        lortuId('modal-irabazi').classList.remove('ezkutuan');
-        
-        // Konfeti efektua
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 }
-        });
+    function stopTimer() {
+      clearInterval(timerId);
+      timerId = null;
     }
 
-    // "Enter" teklari entzun
-    lortuId('erantzun-input').addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') egiaztatu();
+    function updateProgress() {
+      const percentage = Math.round((score / TARGET_SCORE) * 100);
+      $("scoreText").textContent = String(score);
+      $("progressPercent").textContent = `${percentage}%`;
+      $("progressBar").style.width = `${percentage}%`;
+      $("progressLabel").textContent = `${score} / ${TARGET_SCORE} zuzen jarraian`;
+    }
+
+    function questionWithBlank(question) {
+      return `${question.q} <span class="blank">______</span>.`;
+    }
+
+    function questionWithAnswer(question) {
+      return `${question.q}${question.a}.`;
+    }
+
+    function nextQuestion() {
+      if (score >= TARGET_SCORE) {
+        winGame();
+        return;
+      }
+
+      if (pool.length === 0) {
+        pool = shuffle(MODES[currentModeKey].questions);
+      }
+
+      currentQuestion = pool.pop();
+      locked = false;
+      $("questionText").innerHTML = questionWithBlank(currentQuestion);
+      $("answerInput").value = "";
+      $("answerInput").disabled = false;
+      $("checkBtn").disabled = false;
+      setFeedback("empty", "Prest zaudenean, idatzi erantzuna.");
+      setTimeout(() => $("answerInput").focus(), 40);
+    }
+
+    function startGame(modeKey) {
+      currentModeKey = modeKey;
+      const mode = MODES[modeKey];
+      score = 0;
+      pool = shuffle(mode.questions);
+      currentQuestion = null;
+      locked = false;
+
+      $("gameTitle").textContent = mode.title;
+      $("gameSubtitle").textContent = mode.subtitle;
+      $("modeHint").textContent = mode.hint;
+      updateProgress();
+      hideModal("wrongModal");
+      hideModal("winModal");
+      showScreen("gameScreen");
+      startTimer();
+      nextQuestion();
+    }
+
+    function checkAnswer() {
+      if (!currentQuestion || locked) return;
+
+      const userAnswer = normalizeAnswer($("answerInput").value);
+      const correctAnswer = normalizeAnswer(currentQuestion.a);
+
+      if (!userAnswer) {
+        setFeedback("warn", "Idatzi erantzun bat egiaztatu aurretik.");
+        $("answerInput").focus();
+        return;
+      }
+
+      if (userAnswer === correctAnswer) {
+        locked = true;
+        score += 1;
+        updateProgress();
+        $("answerInput").disabled = true;
+        $("checkBtn").disabled = true;
+        setFeedback("ok", "Zuzena! Hurrengo esaldira goaz.");
+        setTimeout(nextQuestion, 450);
+      } else {
+        loseGame();
+      }
+    }
+
+    function loseGame() {
+      stopTimer();
+      locked = true;
+      $("answerInput").disabled = true;
+      $("checkBtn").disabled = true;
+      $("answerReveal").textContent = `Zuzena: “${questionWithAnswer(currentQuestion)}”`;
+      $("wrongTip").textContent = MODES[currentModeKey].wrongTip;
+      showModal("wrongModal");
+    }
+
+    function winGame() {
+      stopTimer();
+      locked = true;
+      $("finalTime").textContent = $("timerText").textContent;
+      $("finalMode").textContent = MODES[currentModeKey].label;
+      $("winMessage").textContent = MODES[currentModeKey].win;
+      launchConfetti();
+      showModal("winModal");
+    }
+
+    function backToMenu() {
+      stopTimer();
+      hideModal("wrongModal");
+      hideModal("winModal");
+      showScreen("menuScreen");
+      currentModeKey = null;
+      score = 0;
+      pool = [];
+      updateProgress();
+    }
+
+    function launchConfetti() {
+      const layer = $("confettiLayer");
+      layer.innerHTML = "";
+      const colors = ["#15803D", "#22C55E", "#F59E0B", "#1E88E5", "#EF4444"];
+      for (let i = 0; i < 90; i++) {
+        const piece = document.createElement("span");
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = `${Math.random() * 0.5}s`;
+        piece.style.animationDuration = `${1.3 + Math.random() * 1.4}s`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        layer.appendChild(piece);
+      }
+      setTimeout(() => { layer.innerHTML = ""; }, 3200);
+    }
+
+    document.querySelectorAll("[data-mode]").forEach((button) => {
+      button.addEventListener("click", () => startGame(button.dataset.mode));
     });
 
-</script>
+    $("checkBtn").addEventListener("click", checkAnswer);
+    $("answerInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        checkAnswer();
+      }
+    });
 
+    $("changeQuestionBtn").addEventListener("click", () => {
+      if (!locked) nextQuestion();
+    });
+
+    $("backToMenuBtn").addEventListener("click", backToMenu);
+    $("wrongMenuBtn").addEventListener("click", backToMenu);
+    $("winMenuBtn").addEventListener("click", backToMenu);
+    $("restartBtn").addEventListener("click", () => startGame(currentModeKey));
+    $("playAgainBtn").addEventListener("click", () => startGame(currentModeKey));
+
+    $("helpBtn").addEventListener("click", () => showModal("helpModal"));
+    $("closeHelpBtn").addEventListener("click", () => hideModal("helpModal"));
+    $("helpModal").addEventListener("click", (event) => { if (event.target.id === "helpModal") hideModal("helpModal"); });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        hideModal("helpModal");
+      }
+    });
+  </script>
 </body>
 </html>
